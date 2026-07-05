@@ -59,20 +59,55 @@ function renderCatalog() {
       const index = parseInt(card.getAttribute('data-cake-id'));
       const cakes = getCakes();
       if (cakes[index]) {
-        openOrderPage(cakes[index]);
+        showLightbox(cakes[index]);
       }
     }
   });
+  
+  // 大图遮罩绑定事件
+  const lb = document.getElementById('lightbox');
+  if (lb) {
+    document.getElementById('lb-close').addEventListener('click', function() {
+      lb.style.display = 'none';
+    });
+    document.getElementById('lb-back').addEventListener('click', function() {
+      lb.style.display = 'none';
+    });
+    document.getElementById('lb-order').addEventListener('click', function() {
+      lb.style.display = 'none';
+      openOrderPage(selectedCake);
+    });
+    // 点击遮罩背景关闭
+    lb.addEventListener('click', function(e) {
+      if (e.target === lb) lb.style.display = 'none';
+    });
+  }
 }
 
-// --- 选蛋糕（直接打开订购页） ---
-function openOrderPage(cake) {
+// --- 选蛋糕（显示大图预览） ---
+function showLightbox(cake) {
   if (!cake) {
     showToast('❌ 蛋糕信息不存在');
     return;
   }
   
   selectedCake = cake;
+  
+  const lb = document.getElementById('lightbox');
+  if (lb) {
+    lb.style.display = 'flex';
+    document.getElementById('lb-image').src = cake.image;
+    document.getElementById('lb-name').textContent = cake.name;
+    document.getElementById('lb-desc').textContent = cake.desc;
+  }
+}
+
+// --- 打开订购页 ---
+function openOrderPage(cake) {
+  if (!cake) {
+    showToast('❌ 蛋糕信息不存在');
+    return;
+  }
   
   document.getElementById('preview-img').src = cake.image;
   document.getElementById('preview-name').textContent = cake.name;

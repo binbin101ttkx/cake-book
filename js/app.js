@@ -32,37 +32,57 @@ function renderCatalog() {
   
   grid.innerHTML = '';
   
-  if (cakes.length === 0) {
+  if (!cakes || cakes.length === 0) {
     empty.style.display = 'block';
     return;
   }
   empty.style.display = 'none';
   
-  cakes.forEach(cake => {
+  cakes.forEach((cake, index) => {
     const card = document.createElement('div');
     card.className = 'cake-card';
+    card.style.cursor = 'pointer';
     card.innerHTML = `
-      <img src="${cake.image}" alt="${cake.name}" loading="lazy">
+      <img src="${cake.image}" alt="${cake.name}" loading="lazy" style="width:100%;height:160px;object-fit:cover;display:block;">
       <div class="cake-info">
         <div class="cake-name">${escapeHtml(cake.name)}</div>
         <div class="cake-desc">${escapeHtml(cake.desc)}</div>
       </div>
     `;
-    card.onclick = () => selectCake(cake);
+    card.onclick = function() {
+      console.log('Clicked cake:', cake.name);
+      selectCake(cake);
+    };
     grid.appendChild(card);
   });
+  
+  console.log('Rendered', cakes.length, 'cakes');
 }
 
 // --- 选蛋糕 ---
 function selectCake(cake) {
+  if (!cake) {
+    console.error('selectCake called with null/undefined');
+    return;
+  }
+  
   selectedCake = cake;
+  console.log('Opening lightbox for:', cake.name);
   
   // 显示大图预览
   const lb = document.getElementById('lightbox');
-  lb.style.display = 'flex';
-  document.getElementById('lb-image').src = cake.image;
-  document.getElementById('lb-name').textContent = cake.name;
-  document.getElementById('lb-desc').textContent = cake.desc;
+  if (lb) {
+    lb.style.display = 'flex';
+    const img = document.getElementById('lb-image');
+    const nameEl = document.getElementById('lb-name');
+    const descEl = document.getElementById('lb-desc');
+    
+    if (img) img.src = cake.image;
+    if (nameEl) nameEl.textContent = cake.name;
+    if (descEl) descEl.textContent = cake.desc;
+  } else {
+    console.error('Lightbox element not found!');
+  }
 }
 
 function closeLightbox() {

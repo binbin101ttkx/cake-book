@@ -167,8 +167,42 @@ function fallbackCopy(text) {
 
 // --- 分享到微信 ---
 function shareToWechat() {
-  copyOrder();
-  showToast('💬 打开微信，粘贴发送给店主即可');
+  const name = document.getElementById('cust-name').value.trim();
+  const phone = document.getElementById('cust-phone').value.trim();
+  const style = document.getElementById('cake-style').value.trim();
+  const size = document.getElementById('cake-size').value;
+  const age = document.getElementById('cust-age').value.trim();
+  const time = document.getElementById('delivery-time').value;
+  const greeting = document.getElementById('greeting-msg').value.trim();
+  
+  if (!name || !phone || !style || !size || !time) {
+    showToast('请填写所有必填项（标*）');
+    return;
+  }
+  
+  let formattedTime = time.replace('T', ' ');
+  let order = `🎂 蛋糕订购\n姓名：${name}\n电话：${phone}\n款式：${style}\n尺寸：${size}`;
+  if (age) order += `\n年龄：${age}岁`;
+  order += `\n交货：${formattedTime}`;
+  if (greeting) order += `\n贺卡：${greeting}`;
+  order += `\n已选中：${selectedCake.name}`;
+  
+  // 尝试使用 WeixinJSBridge 直接分享
+  if (typeof WeixinJSBridge !== 'undefined') {
+    WeixinJSBridge.invoke('shareApp', {
+      'appId': '',
+      'imgUrl': '',
+      'link': 'https://binbin101ttkx.github.io/cake-book/',
+      'desc': order,
+      'title': '蛋糕订购'
+    }, function(res) {
+      showToast('已调起微信分享，请在聊天中粘贴订单信息');
+    });
+  } else {
+    // 降级方案：复制文本
+    copyOrder();
+    showToast('💬 打开微信，粘贴发送给店主即可');
+  }
 }
 
 // --- 管理员：上传图片 ---

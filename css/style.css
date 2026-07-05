@@ -25,6 +25,25 @@ body {
 .catalog-header h1 { font-size: 24px; margin-bottom: 6px; }
 .catalog-header p { font-size: 14px; opacity: 0.9; }
 
+.admin-entry-btn {
+  margin-top: 12px;
+  padding: 10px 24px;
+  background: rgba(255,255,255,0.25);
+  border: 2px solid #fff;
+  border-radius: 25px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.admin-entry-btn:hover {
+  background: rgba(255,255,255,0.4);
+}
+.admin-entry-btn:active {
+  transform: scale(0.95);
+}
+
 .cake-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

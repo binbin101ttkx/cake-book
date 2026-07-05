@@ -200,7 +200,42 @@ function fallbackCopy(text) {
   document.body.removeChild(ta);
 }
 
-// --- 分享到微信 ---
+// --- 发送到飞书 ---
+function sendToFeishu(orderData) {
+  const webhookUrl = 'https://open.feishu.cn/open-apis/bot/v2/hook/3a2ab45d-4e15-467e-b7c4-b3d6e97c1f5a';
+  
+  const content = `🎂 **新蛋糕订单**
+━━━━━━━━━━━━━━
+姓名：${orderData.name}
+电话：${orderData.phone}
+款式：${orderData.style}
+尺寸：${orderData.size}
+${orderData.age ? '年龄：' + orderData.age + '岁\n' : ''}${orderData.time ? '交货：' + orderData.time.replace('T', ' ') + '\n' : ''}${orderData.greeting ? '贺卡：' + orderData.greeting + '\n' : ''}蛋糕：${orderData.cakeName}
+━━━━━━━━━━━━━━`;
+
+  const data = {
+    msg_type: 'interactive',
+    card: {
+      config: { wide_screen_mode: true },
+      header: {
+        title: { tag: 'plain_text', content: '🎂 新蛋糕订单' },
+        template: 'red'
+      },
+      elements: [{
+        tag: 'markdown',
+        content: content
+      }]
+    }
+  };
+
+  return fetch(webhookUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  }).then(res => res.json());
+}
+
+// --- 分享到微信（复制文本 + 发飞书） ---
 function shareToWechat() {
   const name = document.getElementById('cust-name').value.trim();
   const phone = document.getElementById('cust-phone').value.trim();
@@ -215,29 +250,29 @@ function shareToWechat() {
     return;
   }
   
-  let formattedTime = time.replace('T', ' ');
-  let order = `🎂 蛋糕订购\n姓名：${name}\n电话：${phone}\n款式：${style}\n尺寸：${size}`;
-  if (age) order += `\n年龄：${age}岁`;
-  order += `\n交货：${formattedTime}`;
-  if (greeting) order += `\n贺卡：${greeting}`;
-  order += `\n已选中：${selectedCake.name}`;
+  // 1. 先发送到飞书
+  const orderData = {
+    name: name,
+    phone: phone,
+    style: style,
+    size: size,
+    age: age,
+    time: time.replace('T', ' '),
+    greeting: greeting,
+    cakeName: selectedCake.name
+  };
   
-  // 尝试使用 WeixinJSBridge 直接分享
-  if (typeof WeixinJSBridge !== 'undefined') {
-    WeixinJSBridge.invoke('shareApp', {
-      'appId': '',
-      'imgUrl': '',
-      'link': 'https://binbin101ttkx.github.io/cake-book/',
-      'desc': order,
-      'title': '蛋糕订购'
-    }, function(res) {
-      showToast('已调起微信分享，请在聊天中粘贴订单信息');
-    });
-  } else {
-    // 降级方案：复制文本
+  showToast('⏳ 正在发送订单到飞书...');
+  
+  sendToFeishu(orderData).then(() => {
+    // 2. 成功后复制文本
     copyOrder();
-    showToast('💬 打开微信，粘贴发送给店主即可');
-  }
+    showToast('✅ 订单已发送到飞书！请打开微信粘贴发送给店主');
+  }).catch(err => {
+    console.error('飞书发送失败:', err);
+    copyOrder();
+    showToast('⚠️ 订单发送失败，请手动复制发给店主');
+  });
 }
 
 // --- 管理员：上传图片 ---

@@ -41,67 +41,44 @@ function renderCatalog() {
   cakes.forEach((cake, index) => {
     const card = document.createElement('div');
     card.className = 'cake-card';
-    card.style.cursor = 'pointer';
+    card.setAttribute('data-cake-id', index);
     card.innerHTML = `
-      <img src="${cake.image}" alt="${cake.name}" loading="lazy" style="width:100%;height:160px;object-fit:cover;display:block;">
+      <img src="${cake.image}" alt="${escapeHtml(cake.name)}" loading="lazy" style="width:100%;height:160px;object-fit:cover;display:block;">
       <div class="cake-info">
         <div class="cake-name">${escapeHtml(cake.name)}</div>
         <div class="cake-desc">${escapeHtml(cake.desc)}</div>
       </div>
     `;
-    card.onclick = function() {
-      console.log('Clicked cake:', cake.name);
-      selectCake(cake);
-    };
     grid.appendChild(card);
   });
   
-  console.log('Rendered', cakes.length, 'cakes');
+  // 用事件委托处理点击
+  grid.addEventListener('click', function(e) {
+    const card = e.target.closest('.cake-card');
+    if (card) {
+      const index = parseInt(card.getAttribute('data-cake-id'));
+      const cakes = getCakes();
+      if (cakes[index]) {
+        openOrderPage(cakes[index]);
+      }
+    }
+  });
 }
 
-// --- 选蛋糕 ---
-function selectCake(cake) {
+// --- 选蛋糕（直接打开订购页） ---
+function openOrderPage(cake) {
   if (!cake) {
-    console.error('selectCake called with null/undefined');
+    showToast('❌ 蛋糕信息不存在');
     return;
   }
   
   selectedCake = cake;
-  console.log('Opening lightbox for:', cake.name);
   
-  // 显示大图预览
-  const lb = document.getElementById('lightbox');
-  if (lb) {
-    lb.style.display = 'flex';
-    const img = document.getElementById('lb-image');
-    const nameEl = document.getElementById('lb-name');
-    const descEl = document.getElementById('lb-desc');
-    
-    if (img) img.src = cake.image;
-    if (nameEl) nameEl.textContent = cake.name;
-    if (descEl) descEl.textContent = cake.desc;
-  } else {
-    console.error('Lightbox element not found!');
-  }
-}
-
-function closeLightbox() {
-  document.getElementById('lightbox').style.display = 'none';
-}
-
-function openOrderPageFromLightbox() {
-  closeLightbox();
-  openOrderPage();
-}
-
-function openOrderPage() {
-  if (!selectedCake) return;
+  document.getElementById('preview-img').src = cake.image;
+  document.getElementById('preview-name').textContent = cake.name;
+  document.getElementById('cake-style').value = cake.name;
   
-  document.getElementById('preview-img').src = selectedCake.image;
-  document.getElementById('preview-name').textContent = selectedCake.name;
-  document.getElementById('cake-style').value = selectedCake.name;
-  
-  // 设置默认交货时间为明天
+  // 设置默认交货时间为明天上午10点
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   tomorrow.setHours(10, 0, 0, 0);
@@ -116,6 +93,8 @@ function openOrderPage() {
   
   showPage('order-page');
 }
+
+
 
 function formatDateTimeLocal(date) {
   const y = date.getFullYear();

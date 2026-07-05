@@ -13,6 +13,7 @@
   <header class="catalog-header">
     <h1>🎂 冰雪蛋糕图册</h1>
     <p>欢迎挑选心仪款式</p>
+    <p style="font-size:12px;margin-top:4px;opacity:0.7;">点击蛋糕卡片直接订购</p>
   </header>
   
   <div id="cake-grid" class="cake-grid">
@@ -24,24 +25,12 @@
   </div>
   
   <footer class="catalog-footer">
-    <p>点击图片查看大图 · 选中后填写订购信息</p>
+    <p>点击蛋糕卡片直接订购 · 双击底部进入管理</p>
     <button class="admin-entry-btn" onclick="enterAdmin()">🔧 管理图册</button>
   </footer>
 </div>
 
-<!-- 大图预览 -->
-<div id="lightbox" class="lightbox-overlay" style="display:none;">
-  <div class="lb-close" onclick="closeLightbox()">×</div>
-  <img id="lb-image" src="" alt="蛋糕大图">
-  <div class="lb-info">
-    <h3 id="lb-name"></h3>
-    <p id="lb-desc"></p>
-  </div>
-  <div class="lb-actions">
-    <button class="btn btn-copy" onclick="closeLightbox()">返回图册</button>
-    <button class="btn btn-wechat" onclick="openOrderPageFromLightbox()">立即订购</button>
-  </div>
-</div>
+
 
 <!-- 选择蛋糕后的订购页 -->
 <div id="order-page" class="page-hidden">

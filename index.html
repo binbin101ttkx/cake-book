@@ -29,6 +29,20 @@
   </footer>
 </div>
 
+<!-- 大图预览 -->
+<div id="lightbox" class="lightbox-overlay" style="display:none;">
+  <div class="lb-close" onclick="closeLightbox()">×</div>
+  <img id="lb-image" src="" alt="蛋糕大图">
+  <div class="lb-info">
+    <h3 id="lb-name"></h3>
+    <p id="lb-desc"></p>
+  </div>
+  <div class="lb-actions">
+    <button class="btn btn-copy" onclick="closeLightbox()">返回图册</button>
+    <button class="btn btn-wechat" onclick="openOrderPageFromLightbox()">立即订购</button>
+  </div>
+</div>
+
 <!-- 选择蛋糕后的订购页 -->
 <div id="order-page" class="page-hidden">
   <header class="order-header">

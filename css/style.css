@@ -115,6 +115,60 @@ body {
 }
 
 /* ========== 大图预览 ========== */
+.lightbox-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.9);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+.lightbox-overlay img {
+  max-width: 90vw;
+  max-height: 60vh;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+.lb-info {
+  color: #fff;
+  text-align: center;
+  margin-top: 16px;
+}
+.lb-info h3 {
+  font-size: 20px;
+  margin-bottom: 6px;
+}
+.lb-info p {
+  font-size: 14px;
+  opacity: 0.8;
+}
+.lb-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  color: #fff;
+  font-size: 32px;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  text-align: center;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+}
+.lb-close:hover {
+  background: rgba(255,255,255,0.2);
+}
+.lb-actions {
+  margin-top: 20px;
+  display: flex;
+  gap: 12px;
+  padding-bottom: 20px;
+}
+
+/* ========== 大图预览 ========== */
 #lightbox {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;

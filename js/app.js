@@ -60,18 +60,18 @@ function selectCake(cake) {
   // 显示大图预览
   const lb = document.getElementById('lightbox');
   lb.style.display = 'flex';
-  lb.querySelector('img').src = cake.image;
-  lb.querySelector('.lb-info h3').textContent = cake.name;
-  lb.querySelector('.lb-info p').textContent = cake.desc;
-  
-  // 绑定按钮事件
-  lb.querySelector('.lb-confirm').onclick = () => {
-    lb.style.display = 'none';
-    openOrderPage();
-  };
-  lb.querySelector('.lb-cancel').onclick = () => {
-    lb.style.display = 'none';
-  };
+  document.getElementById('lb-image').src = cake.image;
+  document.getElementById('lb-name').textContent = cake.name;
+  document.getElementById('lb-desc').textContent = cake.desc;
+}
+
+function closeLightbox() {
+  document.getElementById('lightbox').style.display = 'none';
+}
+
+function openOrderPageFromLightbox() {
+  closeLightbox();
+  openOrderPage();
 }
 
 function openOrderPage() {

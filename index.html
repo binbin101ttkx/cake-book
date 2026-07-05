@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🎂 甜品蛋糕图册</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- 主页面：蛋糕图册 -->
+<div id="catalog-page">
+  <header class="catalog-header">
+    <h1>🎂 甜品蛋糕图册</h1>
+    <p>欢迎挑选心仪款式</p>
+  </header>
+  
+  <div id="cake-grid" class="cake-grid">
+    <!-- 蛋糕卡片动态加载 -->
+  </div>
+  
+  <div id="no-cakes" class="empty-hint" style="display:none;">
+    <p>图册暂时为空，请联系店主添加蛋糕款式 😊</p>
+  </div>
+  
+  <footer class="catalog-footer">
+    <p>点击图片查看大图 · 选中后填写订购信息</p>
+  </footer>
+</div>
+
+<!-- 选择蛋糕后的订购页 -->
+<div id="order-page" class="page-hidden">
+  <header class="order-header">
+    <button class="back-btn" onclick="goBack()">← 返回图册</button>
+    <h2>📝 订购信息</h2>
+  </header>
+  
+  <div id="selected-preview" class="selected-preview">
+    <img id="preview-img" src="" alt="选中的蛋糕">
+    <span id="preview-name"></span>
+  </div>
+  
+  <form id="order-form" class="order-form" onsubmit="return false;">
+    <div class="form-group">
+      <label>姓名 *</label>
+      <input type="text" id="cust-name" placeholder="请输入您的姓名" required>
+    </div>
+    
+    <div class="form-group">
+      <label>联系电话 *</label>
+      <input type="tel" id="cust-phone" placeholder="请输入手机号码" required>
+    </div>
+    
+    <div class="form-group">
+      <label>蛋糕款式 *</label>
+      <input type="text" id="cake-style" placeholder="请输入款式名称或编号" required>
+    </div>
+    
+    <div class="form-group">
+      <label>尺寸 *</label>
+      <select id="cake-size" required>
+        <option value="">请选择尺寸</option>
+        <option value="4寸">4寸（1-2人）</option>
+        <option value="6寸">6寸（3-5人）</option>
+        <option value="8寸">8寸（6-10人）</option>
+        <option value="10寸">10寸（10-15人）</option>
+        <option value="定制">定制尺寸</option>
+      </select>
+    </div>
+    
+    <div class="form-group">
+      <label>年龄</label>
+      <input type="number" id="cust-age" placeholder="寿星年龄（选填）">
+    </div>
+    
+    <div class="form-group">
+      <label>交货时间 *</label>
+      <input type="datetime-local" id="delivery-time" required>
+    </div>
+    
+    <div class="form-group">
+      <label>贺卡内容</label>
+      <textarea id="greeting-msg" placeholder="请输入贺卡祝福语（选填）" rows="3"></textarea>
+    </div>
+  </form>
+  
+  <div class="action-buttons">
+    <button class="btn btn-copy" onclick="copyOrder()">📋 复制订单信息</button>
+    <button class="btn btn-wechat" onclick="shareToWechat()">💬 发送到微信</button>
+  </div>
+</div>
+
+<!-- 管理员后台入口 -->
+<div id="admin-page" class="page-hidden">
+  <header class="order-header">
+    <button class="back-btn" onclick="goToCatalog()">← 返回图册</button>
+    <h2>🔧 图册管理</h2>
+  </header>
+  
+  <div class="admin-section">
+    <h3>上传新蛋糕</h3>
+    <div class="upload-area" onclick="document.getElementById('file-input').click()">
+      <div class="upload-icon">+</div>
+      <p>点击上传蛋糕图片</p>
+      <input type="file" id="file-input" accept="image/*" style="display:none" onchange="handleUpload(event)">
+    </div>
+    <div class="upload-hint">支持 JPG/PNG 格式，建议尺寸 800×600</div>
+  </div>
+  
+  <div class="admin-section">
+    <h3>已有蛋糕列表</h3>
+    <div id="admin-cake-list" class="admin-list"></div>
+  </div>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

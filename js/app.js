@@ -274,6 +274,13 @@ function escapeHtml(str) {
 document.addEventListener('DOMContentLoaded', function() {
   renderCatalog();
   
-  // 双击底部页脚进入管理后台
-  document.querySelector('.catalog-footer').addEventListener('dblclick', enterAdmin);
+  // 管理按钮点击事件
+  var adminBtn = document.getElementById('admin-btn');
+  if (adminBtn) {
+    adminBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      enterAdmin();
+    });
+  }
 });

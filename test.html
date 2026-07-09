@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head><title>测试 Supabase 连接</title></head>
+<body>
+<h1>Supabase 连接测试</h1>
+<div id="result"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = 'https://dqknfgrupnsoztercesj.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_7vYkTaY_edqTlltNRqU_LQ_vi9v9GYX';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+async function test() {
+  const result = document.getElementById('result');
+  
+  // 测试获取 cakes 表
+  const { data, error } = await supabase.from('cakes').select('*');
+  
+  if (error) {
+    result.innerHTML = `<p style="color:red;">❌ 错误: ${error.message}</p>`;
+  } else {
+    result.innerHTML = `<p style="color:green;">✅ 连接成功！</p><p>共 ${data.length} 条蛋糕数据</p><pre>${JSON.stringify(data.slice(0, 3), null, 2)}</pre>`;
+  }
+}
+
+test();
+</script>
+</body>
+</html>

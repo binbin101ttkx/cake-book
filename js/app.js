@@ -1,6 +1,7 @@
 // ========== 主应用逻辑 ==========
 
 let selectedCake = null;
+let isLoading = true;
 
 // --- 页面切换 ---
 function showPage(pageId) {
@@ -25,8 +26,8 @@ function goBack() {
 }
 
 // --- 图册渲染 ---
-function renderCatalog() {
-  const cakes = getCakes();
+async function renderCatalog() {
+  const cakes = await getCakes();
   const grid = document.getElementById('cake-grid');
   const empty = document.getElementById('no-cakes');
   
@@ -42,45 +43,47 @@ function renderCatalog() {
     const card = document.createElement('div');
     card.className = 'cake-card';
     card.setAttribute('data-cake-id', index);
+    
+    // 如果有图片就显示，没有就用默认图
+    const imgSrc = cake.image && cake.image !== '' ? cake.image : 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect fill="%23f5e6d3" width="400" height="300"/><text x="200" y="150" text-anchor="middle" font-size="40">🎂</text></svg>';
+    
     card.innerHTML = `
-      <img src="${cake.image}" alt="${escapeHtml(cake.name)}" loading="lazy" style="width:100%;height:160px;object-fit:cover;display:block;">
+      <img src="${escapeHtml(imgSrc)}" alt="${escapeHtml(cake.name)}" loading="lazy" style="width:100%;height:160px;object-fit:cover;display:block;">
       <div class="cake-info">
         <div class="cake-name">${escapeHtml(cake.name)}</div>
-        <div class="cake-desc">${escapeHtml(cake.desc)}</div>
+        <div class="cake-desc">${escapeHtml(cake.description || '')}</div>
       </div>
     `;
     grid.appendChild(card);
   });
   
   // 用事件委托处理点击
-  grid.addEventListener('click', function(e) {
+  grid.onclick = function(e) {
     const card = e.target.closest('.cake-card');
     if (card) {
       const index = parseInt(card.getAttribute('data-cake-id'));
-      const cakes = getCakes();
       if (cakes[index]) {
         showLightbox(cakes[index]);
       }
     }
-  });
+  };
   
   // 大图遮罩绑定事件
   const lb = document.getElementById('lightbox');
   if (lb) {
-    document.getElementById('lb-close').addEventListener('click', function() {
+    document.getElementById('lb-close').onclick = function() {
       lb.style.display = 'none';
-    });
-    document.getElementById('lb-back').addEventListener('click', function() {
+    };
+    document.getElementById('lb-back').onclick = function() {
       lb.style.display = 'none';
-    });
-    document.getElementById('lb-order').addEventListener('click', function() {
+    };
+    document.getElementById('lb-order').onclick = function() {
       lb.style.display = 'none';
       openOrderPage(selectedCake);
-    });
-    // 点击遮罩背景关闭
-    lb.addEventListener('click', function(e) {
+    };
+    lb.onclick = function(e) {
       if (e.target === lb) lb.style.display = 'none';
-    });
+    };
   }
 }
 
@@ -96,9 +99,10 @@ function showLightbox(cake) {
   const lb = document.getElementById('lightbox');
   if (lb) {
     lb.style.display = 'flex';
-    document.getElementById('lb-image').src = cake.image;
+    const imgSrc = cake.image && cake.image !== '' ? cake.image : 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect fill="%23f5e6d3" width="400" height="300"/><text x="200" y="150" text-anchor="middle" font-size="40">🎂</text></svg>';
+    document.getElementById('lb-image').src = imgSrc;
     document.getElementById('lb-name').textContent = cake.name;
-    document.getElementById('lb-desc').textContent = cake.desc;
+    document.getElementById('lb-desc').textContent = cake.description || '';
   }
 }
 
@@ -109,7 +113,8 @@ function openOrderPage(cake) {
     return;
   }
   
-  document.getElementById('preview-img').src = cake.image;
+  const imgSrc = cake.image && cake.image !== '' ? cake.image : 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect fill="%23f5e6d3" width="400" height="300"/><text x="200" y="150" text-anchor="middle" font-size="40">🎂</text></svg>';
+  document.getElementById('preview-img').src = imgSrc;
   document.getElementById('preview-name').textContent = cake.name;
   document.getElementById('cake-style').value = cake.name;
   
@@ -129,19 +134,8 @@ function openOrderPage(cake) {
   showPage('order-page');
 }
 
-
-
-function formatDateTimeLocal(date) {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, '0');
-  const d = String(date.getDate()).padStart(2, '0');
-  const h = String(date.getHours()).padStart(2, '0');
-  const mi = String(date.getMinutes()).padStart(2, '0');
-  return `${y}-${m}-${d}T${h}:${mi}`;
-}
-
 // --- 复制订单 ---
-function copyOrder() {
+async function copyOrder() {
   const name = document.getElementById('cust-name').value.trim();
   const phone = document.getElementById('cust-phone').value.trim();
   const style = document.getElementById('cake-style').value.trim();
@@ -170,38 +164,47 @@ function copyOrder() {
   order += `交货：${formattedTime}\n`;
   if (greeting) order += `贺卡：${greeting}\n`;
   order += `━━━━━━━━━━━━━━\n`;
-  order += `\n（已选中蛋糕：${selectedCake.name}）`;
+  if (selectedCake) {
+    order += `\n（已选中蛋糕：${selectedCake.name}）`;
+  }
   
   // 复制到剪贴板
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(order).then(() => {
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(order);
       showToast('✅ 订单已复制！去微信粘贴发给店主吧');
-    }).catch(() => {
-      fallbackCopy(order);
-    });
-  } else {
-    fallbackCopy(order);
+      
+      // 同时保存到数据库
+      await saveOrder({
+        customer_name: name,
+        phone: phone,
+        style: style,
+        size: size,
+        age: age ? parseInt(age) : null,
+        delivery_time: new Date(formattedTime).toISOString(),
+        greeting: greeting,
+        cake_name: selectedCake ? selectedCake.name : style
+      });
+    } else {
+      showToast('⚠️ 复制失败，请手动复制');
+    }
+  } catch (err) {
+    showToast('❌ 复制失败，请手动复制');
   }
 }
 
-function fallbackCopy(text) {
-  const ta = document.createElement('textarea');
-  ta.value = text;
-  ta.style.position = 'fixed';
-  ta.style.left = '-9999px';
-  document.body.appendChild(ta);
-  ta.select();
+// --- 保存订单到数据库 ---
+async function saveOrder(orderData) {
   try {
-    document.execCommand('copy');
-    showToast('✅ 订单已复制！去微信粘贴发给店主吧');
-  } catch (e) {
-    showToast('❌ 复制失败，请手动复制');
+    const result = await addOrder(orderData);
+    console.log('订单已保存:', result);
+  } catch (error) {
+    console.error('保存订单失败:', error);
   }
-  document.body.removeChild(ta);
 }
 
 // --- 发送到飞书 ---
-function sendToFeishu(orderData) {
+async function sendToFeishu(orderData) {
   const webhookUrl = 'https://open.feishu.cn/open-apis/bot/v2/hook/3a2ab45d-4e15-467e-b7c4-b3d6e97c1f5a';
   
   const content = `🎂 **新蛋糕订单**
@@ -236,7 +239,7 @@ ${orderData.age ? '年龄：' + orderData.age + '岁\n' : ''}${orderData.time ? 
 }
 
 // --- 分享到微信（复制文本 + 发飞书） ---
-function shareToWechat() {
+async function shareToWechat() {
   const name = document.getElementById('cust-name').value.trim();
   const phone = document.getElementById('cust-phone').value.trim();
   const style = document.getElementById('cake-style').value.trim();
@@ -250,7 +253,19 @@ function shareToWechat() {
     return;
   }
   
-  // 1. 先发送到飞书
+  // 1. 先保存到数据库
+  await saveOrder({
+    customer_name: name,
+    phone: phone,
+    style: style,
+    size: size,
+    age: age ? parseInt(age) : null,
+    delivery_time: new Date(time.replace('T', ' ')).toISOString(),
+    greeting: greeting,
+    cake_name: selectedCake ? selectedCake.name : style
+  });
+  
+  // 2. 再发送到飞书
   const orderData = {
     name: name,
     phone: phone,
@@ -259,24 +274,22 @@ function shareToWechat() {
     age: age,
     time: time.replace('T', ' '),
     greeting: greeting,
-    cakeName: selectedCake.name
+    cakeName: selectedCake ? selectedCake.name : style
   };
   
   showToast('⏳ 正在发送订单到飞书...');
   
-  sendToFeishu(orderData).then(() => {
-    // 2. 成功后复制文本
-    copyOrder();
-    showToast('✅ 订单已发送到飞书！请打开微信粘贴发送给店主');
-  }).catch(err => {
+  try {
+    await sendToFeishu(orderData);
+    showToast('✅ 订单已发送！');
+  } catch (err) {
     console.error('飞书发送失败:', err);
-    copyOrder();
-    showToast('⚠️ 订单发送失败，请手动复制发给店主');
-  });
+    showToast('⚠️ 飞书发送失败，订单已保存');
+  }
 }
 
 // --- 管理员：上传图片 ---
-function handleUpload(event) {
+async function handleUpload(event) {
   const file = event.target.files[0];
   if (!file) return;
   
@@ -287,7 +300,7 @@ function handleUpload(event) {
   }
   
   const reader = new FileReader();
-  reader.onload = function(e) {
+  reader.onload = async function(e) {
     const imageData = e.target.result;
     const name = prompt('蛋糕名称：', file.name.replace(/\.[^.]+$/, ''));
     if (name === null) return; // 取消
@@ -295,9 +308,13 @@ function handleUpload(event) {
     const desc = prompt('蛋糕描述：', '');
     if (desc === null) return;
     
-    addCake(name, desc, imageData);
-    showToast('✅ 添加成功！');
-    renderAdminList();
+    try {
+      await addCake(name, desc, imageData);
+      showToast('✅ 添加成功！');
+      renderAdminList();
+    } catch (error) {
+      showToast('❌ 添加失败，请检查网络');
+    }
   };
   reader.readAsDataURL(file);
   
@@ -306,18 +323,22 @@ function handleUpload(event) {
 }
 
 // --- 管理员：删除蛋糕 ---
-function deleteCake(id) {
+async function deleteCake(id) {
   if (!confirm('确定删除这款蛋糕吗？')) return;
   
-  removeCake(id);
-  showToast('✅ 已删除');
-  renderAdminList();
-  renderCatalog();
+  try {
+    await removeCake(id);
+    showToast('✅ 已删除');
+    renderAdminList();
+    renderCatalog();
+  } catch (error) {
+    showToast('❌ 删除失败');
+  }
 }
 
 // --- 管理员列表 ---
-function renderAdminList() {
-  const cakes = getCakes();
+async function renderAdminList() {
+  const cakes = await getCakes();
   const list = document.getElementById('admin-cake-list');
   list.innerHTML = '';
   
@@ -329,11 +350,14 @@ function renderAdminList() {
   cakes.forEach(cake => {
     const item = document.createElement('div');
     item.className = 'admin-item';
+    
+    const imgSrc = cake.image && cake.image !== '' ? cake.image : 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80"><rect fill="%23f5e6d3" width="80" height="80"/><text x="40" y="45" text-anchor="middle" font-size="30">🎂</text></svg>';
+    
     item.innerHTML = `
-      <img src="${cake.image}" alt="${cake.name}">
+      <img src="${escapeHtml(imgSrc)}" alt="${escapeHtml(cake.name)}" style="width:60px;height:60px;object-fit:cover;border-radius:4px;">
       <div class="item-info">
         <div class="item-name">${escapeHtml(cake.name)}</div>
-        <div class="item-desc">${escapeHtml(cake.desc)}</div>
+        <div class="item-desc">${escapeHtml(cake.description || '')}</div>
       </div>
       <button class="delete-btn" onclick="deleteCake('${cake.id}')">删除</button>
     `;
@@ -354,7 +378,6 @@ function enterAdmin() {
 
 // --- 轻提示 ---
 function showToast(msg) {
-  // 移除已有的 toast
   const old = document.querySelector('.toast');
   if (old) old.remove();
   
@@ -375,16 +398,19 @@ function escapeHtml(str) {
 }
 
 // --- 初始化 ---
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
+  // 加载数据
+  await getCakes(); // 预加载确保数据就绪
+  
   renderCatalog();
   
   // 管理按钮点击事件
   var adminBtn = document.getElementById('admin-btn');
   if (adminBtn) {
-    adminBtn.addEventListener('click', function(e) {
+    adminBtn.onclick = function(e) {
       e.preventDefault();
       e.stopPropagation();
       enterAdmin();
-    });
+    };
   }
 });

@@ -10,127 +10,148 @@
 
 <!-- 主页面：蛋糕图册 -->
 <div id="catalog-page">
-  <header class="catalog-header">
-    <h1>🎂 冰雪蛋糕图册</h1>
-    <p>欢迎挑选心仪款式</p>
-  </header>
-  
-  <!-- 大图预览遮罩 -->
-  <div id="lightbox" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);z-index:100;flex-direction:column;align-items:center;justify-content:center;">
-    <div id="lb-close" style="position:absolute;top:16px;right:16px;color:#fff;font-size:32px;cursor:pointer;width:40px;height:40px;line-height:40px;text-align:center;">×</div>
-    <img id="lb-image" src="" style="max-width:90vw;max-height:60vh;border-radius:8px;">
-    <div style="color:#fff;text-align:center;margin-top:16px;">
-      <h3 id="lb-name" style="font-size:20px;margin-bottom:6px;"></h3>
-      <p id="lb-desc" style="font-size:14px;opacity:0.8;"></p>
-    </div>
-    <div style="display:flex;gap:12px;margin-top:20px;padding-bottom:20px;">
-      <button id="lb-back" style="padding:14px 24px;border:none;border-radius:10px;font-size:16px;font-weight:600;cursor:pointer;color:#fff;background:linear-gradient(135deg,#667eea,#764ba2);">返回图册</button>
-      <button id="lb-order" style="padding:14px 24px;border:none;border-radius:10px;font-size:16px;font-weight:600;cursor:pointer;color:#fff;background:linear-gradient(135deg,#07c160,#06ad56);">立即订购</button>
-    </div>
-  </div>
-  
-  <div id="cake-grid" class="cake-grid">
-    <!-- 蛋糕卡片动态加载 -->
-  </div>
-  
-  <div id="no-cakes" class="empty-hint" style="display:none;">
-    <p>图册暂时为空，请联系店主添加蛋糕款式 😊</p>
-  </div>
-  
-  <footer class="catalog-footer">
-    <p>点击蛋糕卡片直接订购</p>
-    <button id="admin-btn" style="margin-top:12px;padding:10px 24px;background:rgba(255,255,255,0.25);border:2px solid #fff;border-radius:25px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;">🔧 管理图册</button>
-  </footer>
+ <header class="catalog-header">
+ <h1>🎂 冰雪蛋糕图册</h1>
+ <p>欢迎挑选心仪款式</p>
+ </header>
+
+ <!-- 大图预览遮罩 -->
+ <div id="lightbox" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);z-index:100;flex-direction:column;align-items:center;justify-content:center;">
+ <div id="lb-close" style="position:absolute;top:16px;right:16px;color:#fff;font-size:32px;cursor:pointer;width:40px;height:40px;line-height:40px;text-align:center;">×</div>
+ <img id="lb-image" src="" style="max-width:90vw;max-height:60vh;border-radius:8px;">
+ <div style="color:#fff;text-align:center;margin-top:16px;">
+ <h3 id="lb-name" style="font-size:20px;margin-bottom:6px;"></h3>
+ <p id="lb-desc" style="font-size:14px;opacity:0.8;"></p>
+ </div>
+ <div style="display:flex;gap:12px;margin-top:20px;padding-bottom:20px;">
+ <button id="lb-back" style="padding:14px 24px;border:none;border-radius:10px;font-size:16px;font-weight:600;cursor:pointer;color:#fff;background:linear-gradient(135deg,#667eea,#764ba2);">返回图册</button>
+ <button id="lb-order" style="padding:14px 24px;border:none;border-radius:10px;font-size:16px;font-weight:600;cursor:pointer;color:#fff;background:linear-gradient(135deg,#07c160,#06ad56);">立即订购</button>
+ </div>
+ </div>
+
+ <div id="cake-grid" class="cake-grid">
+ <!-- 蛋糕卡片动态加载 -->
+ </div>
+
+ <div id="no-cakes" class="empty-hint" style="display:none;">
+ <p>图册暂时为空，请联系店主添加蛋糕款式 😊</p>
+ </div>
+
+ <footer class="catalog-footer">
+ <p>点击蛋糕卡片直接订购</p>
+ <button id="admin-btn" style="margin-top:12px;padding:10px 24px;background:rgba(255,255,255,0.25);border:2px solid #fff;border-radius:25px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;">🔧 管理图册</button>
+ </footer>
 </div>
 
 
 
 <!-- 选择蛋糕后的订购页 -->
 <div id="order-page" class="page-hidden">
-  <header class="order-header">
-    <button class="back-btn" onclick="goBack()">← 返回图册</button>
-    <h2>📝 订购信息</h2>
-  </header>
-  
-  <div id="selected-preview" class="selected-preview">
-    <img id="preview-img" src="" alt="选中的蛋糕">
-    <span id="preview-name"></span>
-  </div>
-  
-  <form id="order-form" class="order-form" onsubmit="return false;">
-    <div class="form-group">
-      <label>姓名 *</label>
-      <input type="text" id="cust-name" placeholder="请输入您的姓名" required>
-    </div>
-    
-    <div class="form-group">
-      <label>联系电话 *</label>
-      <input type="tel" id="cust-phone" placeholder="请输入手机号码" required>
-    </div>
-    
-    <div class="form-group">
-      <label>蛋糕款式 *</label>
-      <input type="text" id="cake-style" placeholder="请输入款式名称或编号" required>
-    </div>
-    
-    <div class="form-group">
-      <label>尺寸 *</label>
-      <select id="cake-size" required>
-        <option value="">请选择尺寸</option>
-        <option value="4寸">4寸（1-2人）</option>
-        <option value="6寸">6寸（3-5人）</option>
-        <option value="8寸">8寸（6-10人）</option>
-        <option value="10寸">10寸（10-15人）</option>
-        <option value="定制">定制尺寸</option>
-      </select>
-    </div>
-    
-    <div class="form-group">
-      <label>年龄</label>
-      <input type="number" id="cust-age" placeholder="寿星年龄（选填）">
-    </div>
-    
-    <div class="form-group">
-      <label>交货时间 *</label>
-      <input type="datetime-local" id="delivery-time" required lang="zh-CN">
-    </div>
-    
-    <div class="form-group">
-      <label>贺卡内容</label>
-      <textarea id="greeting-msg" placeholder="请输入贺卡祝福语（选填）" rows="3"></textarea>
-    </div>
-  </form>
-  
-  <div class="action-buttons">
-    <button class="btn btn-copy" onclick="copyOrder()">📋 复制订单信息</button>
-    <button class="btn btn-wechat" onclick="shareToWechat()">💬 发送到微信</button>
-  </div>
+ <header class="order-header">
+ <button class="back-btn" onclick="goBack()">← 返回图册</button>
+ <h2>📝 订购信息</h2>
+ </header>
+
+ <div id="selected-preview" class="selected-preview">
+ <img id="preview-img" src="" alt="选中的蛋糕">
+ <span id="preview-name"></span>
+ </div>
+
+ <form id="order-form" class="order-form" onsubmit="return false;">
+ <div class="form-group">
+ <label>姓名 *</label>
+ <input type="text" id="cust-name" placeholder="请输入您的姓名" required>
+ </div>
+
+ <div class="form-group">
+ <label>联系电话 *</label>
+ <input type="tel" id="cust-phone" placeholder="请输入手机号码" required>
+ </div>
+
+ <div class="form-group">
+ <label>蛋糕款式 *</label>
+ <input type="text" id="cake-style" placeholder="请输入款式名称或编号" required>
+ </div>
+
+ <div class="form-group">
+ <label>尺寸 *</label>
+ <select id="cake-size" required onchange="toggleCustomSize(this)">
+ <option value="">请选择尺寸</option>
+ <option value="4寸">4寸（1-2人）</option>
+ <option value="6寸">6寸（3-5人）</option>
+ <option value="8寸">8寸（6-10人）</option>
+ <option value="10寸">10寸（10-15人）</option>
+ <option value="12寸">12寸（15-20人）</option>
+ <option value="14寸">14寸（20-30人）</option>
+ <option value="16寸">16寸（30-40人）</option>
+ <option value="custom">自定义尺寸</option>
+ </select>
+ <input type="text" id="custom-size-input" placeholder="请输入尺寸，如 11寸" style="display:none;margin-top:6px;width:100%;padding:10px;border:1px solid #e0d5cf;border-radius:8px;font-size:15px;" />
+ </div>
+
+ <div class="form-group">
+ <label>年龄</label>
+ <input type="number" id="cust-age" placeholder="寿星年龄（选填）">
+ </div>
+
+ <div class="form-group">
+ <label>交货时间 *</label>
+ <input type="datetime-local" id="delivery-time" required lang="zh-CN">
+ </div>
+
+ <div class="form-group">
+ <label>贺卡内容</label>
+ <textarea id="greeting-msg" placeholder="请输入贺卡祝福语（选填）" rows="3"></textarea>
+ </div>
+ </form>
+
+ <div class="action-buttons">
+ <button class="btn btn-copy" onclick="copyOrder()">📋 复制订单信息</button>
+ <button class="btn btn-wechat" onclick="shareToWechat()">💬 发送到微信</button>
+ </div>
 </div>
 
 <!-- 管理员后台入口 -->
 <div id="admin-page" class="page-hidden">
-  <header class="order-header">
-    <button class="back-btn" onclick="goToCatalog()">← 返回图册</button>
-    <h2>🔧 图册管理</h2>
-  </header>
-  
-  <div class="admin-section">
-    <h3>上传新蛋糕</h3>
-    <div class="upload-area" onclick="document.getElementById('file-input').click()">
-      <div class="upload-icon">+</div>
-      <p>点击上传蛋糕图片</p>
-      <input type="file" id="file-input" accept="image/*" style="display:none" onchange="handleUpload(event)">
-    </div>
-    <div class="upload-hint">支持 JPG/PNG 格式，建议尺寸 800×600</div>
-  </div>
-  
-  <div class="admin-section">
-    <h3>已有蛋糕列表</h3>
-    <div id="admin-cake-list" class="admin-list"></div>
-  </div>
+ <header class="order-header">
+ <button class="back-btn" onclick="goToCatalog()">← 返回图册</button>
+ <h2>🔧 图册管理</h2>
+ </header>
+
+ <div class="admin-section">
+ <h3>分组管理</h3>
+ <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+ <input type="text" id="new-group-name" placeholder="输入新分组名称" style="flex:1; padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
+ <button onclick="addGroup()" style="padding: 8px 16px; background: #667eea; color: #fff; border: none; border-radius: 6px; cursor: pointer;">+ 添加分组</button>
+ </div>
+ <div id="group-list" class="group-list"></div>
+ </div>
+
+ <div class="admin-section">
+ <h3>上传新蛋糕</h3>
+ <div style="margin-bottom: 12px;">
+ <label style="font-size: 14px; font-weight: 600; color: #555; display: block; margin-bottom: 4px;">选择分组</label>
+ <select id="new-cake-group" style="width: 100%; padding: 10px; border: 1px solid #e0d5cf; border-radius: 8px; font-size: 15px;"></select>
+ </div>
+ <div class="upload-area" onclick="document.getElementById('file-input').click()">
+ <div class="upload-icon">+</div>
+ <p>点击上传蛋糕图片</p>
+ <input type="file" id="file-input" accept="image/*" style="display:none" onchange="handleUpload(event)">
+ </div>
+ <div class="upload-hint">支持 JPG/PNG 格式，建议尺寸 800×600</div>
+ </div>
+
+ <div class="admin-section">
+ <h3>已有蛋糕列表</h3>
+ <div id="admin-cake-list" class="admin-list"></div>
+ </div>
 </div>
+
+<!-- Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script src="js/data.js"></script>
 <script src="js/app.js"></script>
+
 </body>
 </html>
